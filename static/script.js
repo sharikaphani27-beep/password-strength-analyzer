@@ -1,83 +1,108 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
     const passwordInput = document.getElementById('passwordInput');
-    const toggleBtn = document.getElementById('toggleBtn');
+    const toggleVisibility = document.getElementById('toggleVisibility');
     const eyeIcon = document.getElementById('eyeIcon');
-    const eyeOffIcon = document.getElementById('eyeOffIcon');
     const analyzeBtn = document.getElementById('analyzeBtn');
     const result = document.getElementById('result');
+    const strengthFill = document.getElementById('strengthFill');
     const strengthText = document.getElementById('strengthText');
-    const scoreFill = document.getElementById('scoreFill');
     const scoreText = document.getElementById('scoreText');
-    const feedbackList = document.getElementById('feedbackList');
+    const feedback = document.getElementById('feedback');
+    const checkItems = document.querySelectorAll('.check-item');
 
-    toggleBtn.addEventListener('click', () => {
-        const type = passwordInput.type === 'password' ? 'text' : 'password';
-        passwordInput.type = type;
-        
-        eyeIcon.classList.toggle('hidden', type === 'text');
-        eyeOffIcon.classList.toggle('hidden', type === 'password');
+    toggleVisibility.addEventListener('click', function() {
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.textContent = '🙈';
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.textContent = '👁️';
+        }
     });
 
-    analyzeBtn.addEventListener('click', async () => {
+    passwordInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            analyzePassword();
+        }
+    });
+
+    analyzeBtn.addEventListener('click', analyzePassword);
+
+    function analyzePassword() {
         const password = passwordInput.value;
-        
+
         if (!password) {
-            passwordInput.focus();
+            shakeInput();
             return;
         }
 
         analyzeBtn.disabled = true;
         analyzeBtn.textContent = 'Analyzing...';
 
-        try {
-            const response = await fetch('/api/analyze', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password })
-            });
-
-            const data = await response.json();
+        fetch('/analyze', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ password: password })
+        })
+        .then(response => response.json())
+        .then(data => {
             displayResult(data);
-        } catch (error) {
+        })
+        .catch(error => {
             console.error('Error:', error);
-        } finally {
+            alert('An error occurred. Please try again.');
+        })
+        .finally(() => {
             analyzeBtn.disabled = false;
             analyzeBtn.textContent = 'Analyze Password';
-        }
-    });
-
-    passwordInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            analyzeBtn.click();
-        }
-    });
+        });
+    }
 
     function displayResult(data) {
         result.classList.remove('hidden');
         
-        const percent = (data.score / data.max_score) * 100;
+        const strengthClass = data.strength.toLowerCase();
+        strengthFill.className = 'strength-fill ' + strengthClass;
+        strengthText.className = 'strength-text ' + strengthClass;
+        strengthText.textContent = data.strength + ' Password';
         
-        strengthText.textContent = data.strength;
-        strengthText.className = 'strength-value ' + data.strength.toLowerCase();
-        
-        scoreFill.style.width = percent + '%';
-        scoreFill.className = 'score-fill ' + data.strength.toLowerCase();
-        
-        scoreText.textContent = `${data.score}/${data.max_score}`;
-        
-        feedbackList.innerHTML = '';
-        
+        scoreText.textContent = `Score: ${data.score}/${data.max_score}`;
+
+        checkItems.forEach(item => {
+            const checkType = item.dataset.check;
+            const passed = data.checks && data.checks[checkType];
+            
+            if (passed) {
+                item.classList.add('passed');
+            } else {
+                item.classList.remove('passed');
+            }
+        });
+
         if (data.feedback && data.feedback.length > 0) {
-            data.feedback.forEach(item => {
-                const li = document.createElement('li');
-                li.textContent = item;
-                feedbackList.appendChild(li);
-            });
-        } else if (data.strength === 'Strong') {
-            const li = document.createElement('li');
-            li.textContent = 'Great password! This is a strong password.';
-            li.style.borderLeftColor = 'var(--strong)';
-            feedbackList.appendChild(li);
+            feedback.classList.remove('hidden');
+            feedback.innerHTML = '<ul>' + data.feedback.map(f => `<li>${f}</li>`).join('') + '</ul>';
+        } else {
+            feedback.classList.add('hidden');
         }
     }
+
+    function shakeInput() {
+        passwordInput.style.animation = 'shake 0.5s';
+        setTimeout(() => {
+            passwordInput.style.animation = '';
+        }, 500);
+    }
 });
+
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-5px); }
+        40%, 80% { transform: translateX(5px); }
+    }
+`;
+document.head.appendChild(style);

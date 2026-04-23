@@ -1,2 +1,1 @@
-flask
-scikit-learn
+flask>=3.0.0
