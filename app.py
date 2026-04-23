@@ -10,6 +10,8 @@ app = Flask(__name__)
 
 DB_FILE = "password_db.pkl"
 
+port = int(os.environ.get('PORT', 5000))
+
 def load_database():
     if os.path.exists(DB_FILE):
         with open(DB_FILE, "rb") as f:
@@ -103,4 +105,4 @@ def analyze():
     })
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=port, debug=True)
