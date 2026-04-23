@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Password Analyzer</h1>
+            <p class="subtitle">Check the strength of your password</p>
+            
+            <div class="input-group">
+                <input type="password" id="passwordInput" placeholder="Enter your password">
+                <button id="toggleBtn" class="toggle-btn" type="button">Show</button>
+            </div>
+            
+            <button id="analyzeBtn" class="analyze-btn">Analyze Password</button>
+            
+            <div id="result" class="result hidden">
+                <div class="strength-badge" id="strengthBadge">-</div>
+                <div class="score-bar">
+                    <div class="score-fill" id="scoreFill"></div>
+                </div>
+                
+                <div class="details">
+                    <p class="unique-status" id="uniqueStatus"></p>
+                    
+                    <div class="suggestions" id="suggestions"></div>
+                    
+                    <div class="suggested-password" id="suggestedPassword"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

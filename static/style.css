@@ -1,0 +1,239 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 480px;
+}
+
+.card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    color: #666;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+input[type="password"],
+input[type="text"] {
+    flex: 1;
+    padding: 14px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.toggle-btn {
+    padding: 14px 20px;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #555;
+    transition: all 0.3s;
+}
+
+.toggle-btn:hover {
+    background: #e0e0e0;
+}
+
+.analyze-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.analyze-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.analyze-btn:active {
+    transform: translateY(0);
+}
+
+.result {
+    margin-top: 30px;
+    padding: 24px;
+    border-radius: 12px;
+    background: #f8f9fa;
+}
+
+.hidden {
+    display: none;
+}
+
+.strength-badge {
+    text-align: center;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.strength-badge.weak {
+    background: #fee;
+    color: #c00;
+}
+
+.strength-badge.medium {
+    background: #ffe9cc;
+    color: #f80;
+}
+
+.strength-badge.strong {
+    background: #d4edda;
+    color: #080;
+}
+
+.score-bar {
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.score-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.score-fill.weak {
+    background: #c00;
+    width: 33%;
+}
+
+.score-fill.medium {
+    background: #f80;
+    width: 66%;
+}
+
+.score-fill.strong {
+    background: #080;
+    width: 100%;
+}
+
+.unique-status {
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 16px;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.unique-status.unique {
+    background: #d4edda;
+    color: #080;
+}
+
+.unique-status.duplicate {
+    background: #fee;
+    color: #c00;
+}
+
+.suggestions {
+    margin-bottom: 16px;
+}
+
+.suggestions h4 {
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.suggestions ul {
+    list-style: none;
+}
+
+.suggestions li {
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    background: #fff;
+    border-radius: 6px;
+    border-left: 3px solid #ffc107;
+    color: #555;
+}
+
+.suggested-password {
+    padding: 16px;
+    background: #e8f5e9;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.suggested-password h4 {
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.suggested-password code {
+    display: block;
+    padding: 12px;
+    background: white;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #080;
+    word-break: break-all;
+}
+
+.copy-btn {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background: #080;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+    font-weight: 600;
+}
+
+.copy-btn:hover {
+    background: #060;
+}
