@@ -1,108 +1,83 @@
-import re
-import hashlib
-import random
-import string
 import pickle
-import os
-from flask import Flask, render_template, request, jsonify
+import re
+from flask import Flask, request, jsonify, render_template
 
 app = Flask(__name__)
 
-DB_FILE = "password_db.pkl"
+def load_model():
+    try:
+        with open("password_model.pkl", "rb") as file:
+            return pickle.load(file)
+    except:
+        return {
+            "min_length": 8,
+            "require_upper": True,
+            "require_lower": True,
+            "require_digit": True,
+            "require_special": True,
+            "special_chars": "@#$%^&*",
+            "common_passwords": ["123456", "password", "qwerty", "12345678"]
+        }
 
-port = int(os.environ.get('PORT', 5000))
-
-def load_database():
-    if os.path.exists(DB_FILE):
-        with open(DB_FILE, "rb") as f:
-            return pickle.load(f)
-    return set()
-
-def save_database(db):
-    with open(DB_FILE, "wb") as f:
-        pickle.dump(db, f)
-
-password_db = load_database()
-
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
-
-def check_strength(password):
+def analyze_password(password):
+    model = load_model()
     score = 0
-    remarks = []
+    feedback = []
     
-    if len(password) >= 12:
-        score += 2
-    elif len(password) >= 8:
+    if len(password) >= model["min_length"]:
         score += 1
     else:
-        remarks.append("Password too short")
+        feedback.append(f"Password should be at least {model['min_length']} characters long")
     
-    if re.search(r"[A-Z]", password):
+    if re.search("[A-Z]", password):
         score += 1
     else:
-        remarks.append("Add uppercase letters")
+        feedback.append("Add at least one uppercase letter")
     
-    if re.search(r"[a-z]", password):
+    if re.search("[a-z]", password):
         score += 1
     else:
-        remarks.append("Add lowercase letters")
+        feedback.append("Add at least one lowercase letter")
     
-    if re.search(r"\d", password):
+    if re.search("[0-9]", password):
         score += 1
     else:
-        remarks.append("Add numbers")
+        feedback.append("Add at least one number")
     
-    if re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+    if re.search(f"[{re.escape(model['special_chars'])}]", password):
         score += 1
     else:
-        remarks.append("Add special characters")
+        feedback.append(f"Add at least one special character ({model['special_chars']})")
     
-    if score >= 6:
-        strength = "Strong"
-    elif score >= 4:
+    if password.lower() in model["common_passwords"]:
+        feedback.append("This password is very common and unsafe")
+        score = max(0, score - 2)
+    
+    max_score = 5
+    if score <= 2:
+        strength = "Weak"
+    elif score <= 4:
         strength = "Medium"
     else:
-        strength = "Weak"
+        strength = "Strong"
     
-    return strength, remarks, score
+    return {
+        "score": score,
+        "max_score": max_score,
+        "strength": strength,
+        "feedback": feedback
+    }
 
-def is_unique(password):
-    hashed = hash_password(password)
-    return hashed not in password_db
+@app.route("/")
+def home():
+    return render_template("index.html")
 
-def generate_password(length=12):
-    all_chars = string.ascii_letters + string.digits + "!@#$%^&*()"
-    return ''.join(random.choice(all_chars) for _ in range(length))
-
-def store_password(password):
-    hashed = hash_password(password)
-    password_db.add(hashed)
-    save_database(password_db)
-
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-@app.route('/analyze', methods=['POST'])
+@app.route("/api/analyze", methods=["POST"])
 def analyze():
     data = request.get_json()
-    password = data.get('password', '')
-    
-    strength, remarks, score = check_strength(password)
-    unique = is_unique(password)
-    suggested = generate_password() if strength != "Strong" else None
-    
-    if unique:
-        store_password(password)
-    
-    return jsonify({
-        'strength': strength,
-        'remarks': remarks,
-        'unique': unique,
-        'score': score,
-        'suggested': suggested
-    })
+    password = data.get("password", "")
+    result = analyze_password(password)
+    return jsonify(result)
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=port, debug=True)
+if __name__ == "__main__":
+    app.run(debug=True)
